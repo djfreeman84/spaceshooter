@@ -1,0 +1,156 @@
+<canvas id="myCanvas" width="750" height="750" style='border:solid 1px #000000;'></canvas>
+
+<img src='images/asteroid.png' id='asteroid' style='display:none'>
+<img src='images/ship.png' id='ship' style='display:none'>
+<img src='images/enemyship.png' id='enemyship' style='display:none'>
+<img src='images/bolt.png' id='bolt' style='display:none'>
+<img src='images/enemybolt.png' id='enemybolt' style='display:none'>
+<img src='images/explosion1.png' id='explosion1' style='display:none'>
+<img src='images/explosion2.png' id='explosion2' style='display:none'>
+<img src='images/explosion3.png' id='explosion3' style='display:none'>
+<img src='images/explosion4.png' id='explosion4' style='display:none'>
+<img src='images/extralife.png' id='extralife' style='display:none'>
+
+<script src='scripts/system.js'></script>
+<script src='scripts/keys.js'></script>
+<script src='scripts/hero.js'></script>
+<script src='scripts/bullet.js'></script>
+<script src='scripts/enemybullet.js'></script>
+<script src='scripts/rock.js'></script>
+<script src='scripts/enemy.js'></script>
+<script src='scripts/extralife.js'></script>
+<script src='scripts/ui.js'></script>
+
+<audio src='audio/fire.mp3' id='fire'/>
+<audio src='audio/crash.mp3' id='crash'/>
+
+<script>
+	var canvas = document.getElementById("myCanvas");
+	var ctx = canvas.getContext("2d");
+	
+	asteroid = document.getElementById("asteroid");
+	ship = document.getElementById("ship");
+	enemyship = document.getElementById("enemyship");
+	bolt = document.getElementById("bolt");
+	enemybolt = document.getElementById("enemybolt");
+	explosion1 = document.getElementById("explosion1");
+	explosion2 = document.getElementById("explosion2");
+	explosion3 = document.getElementById("explosion3");
+	explosion4 = document.getElementById("explosion4");
+	
+	spacedub = document.getElementById("spacedub");
+	fire = document.getElementById("fire");
+	crash = document.getElementById("crash");
+	fire.playbackRate = 7.5;
+	
+	var size = 500;
+	canvas.width = 500;
+	canvas.height = 500;
+	
+	clock = setInterval(function(){Update()}, 10);
+	
+	gameOver = true;
+	score = 10;
+	
+	rockTimerInitial = 5;
+	rockTimer = rockTimerInitial;
+	
+	enemyTimerInitial = 30;
+	enemyTimer = enemyTimerInitial;
+	
+	hero = new Hero(242.5, 242.5, 0);
+	bullets = [];
+	rocks = [];
+	ui = new UserInterface();
+	initiate = false;
+	
+	oneUp = null;
+	oneUpping = false;
+	
+	function Update(){
+	
+		if(!gameOver){
+			//console.log("Update");
+			GenerateRocks();
+			GenerateEnemies();
+			GenerateExtraLife();
+			
+			ctx.clearRect(0, 0, size, size);
+			
+			ctx.fillStyle = "#000066";
+			ctx.fillRect(0, 0, size, size);
+			
+			hero.Update();
+			
+			b = 0;
+			while(b < bullets.length){
+				bullets[b].Update();
+				b++;
+			}
+			
+			r = 0;
+			while(r < rocks.length){
+				rocks[r].Update();
+				r++;
+			}
+			
+			if(oneUp != null){
+				oneUp.Update();
+			}
+		
+		}else{
+			if(!keys.space){
+				initiate = true;
+			}else{
+				if(initiate){
+					Restart();
+				}
+			}
+		}
+		
+		ui.Update();
+		
+		
+	}
+	
+	function GenerateRocks(){
+		rockTimer -= .1;
+		if(rockTimer <= 0){
+			rand = Math.ceil(Math.random() * size);
+			rocks.push(new Rock(rand, 0, 0));
+			rockTimer = rockTimerInitial;
+		}
+	}
+	
+	function GenerateEnemies(){
+		enemyTimer -= .1;
+		if(enemyTimer <= 0){
+			rand = Math.ceil(Math.random() * size);
+			rocks.push(new Enemy(rand, 0, 0));
+			enemyTimer = enemyTimerInitial;
+		}
+	}
+	
+	function GenerateExtraLife(){
+	//	console.log((score % 100) + ", " + oneUpping);
+		if(score % 100 === 0 && oneUpping == false){
+			oneUpping = true;
+			oneUp = new ExtraLife(size/2, 0, 0);
+		}else if(score % 100 == 1){
+			oneUpping = false;
+		}
+	}
+	
+	function Restart(){
+		gameOver = false;
+		score = 10;
+		rockTimer = rockTimerInitial;
+		
+		hero = new Hero(242.5, 242.5, 0);
+		bullets = [];
+		rocks = [];
+		ui = new UserInterface();
+		initiate = false;
+	}
+
+</script>
